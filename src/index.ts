@@ -99,7 +99,7 @@ app.use(proxyRouter);
 app.use(streamRouter);
 
 // Start HTTP server
-const server = app.listen(env.PORT, () => {
+const server = app.listen(env.PORT, '0.0.0.0', () => {
   console.log(`\n================================================================`);
   console.log(`🚀 ${addonManifest.name} Stremio Add-on is LIVE & LOGGING TO TERMINAL`);
   console.log(`📡 Dashboard & Config:    http://localhost:${env.PORT}/`);

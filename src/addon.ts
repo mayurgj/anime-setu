@@ -4,7 +4,7 @@ export const addonManifest = {
   name: 'Anime Setu',
   description: 'Bridge to Anime in Hindi, Tamil, Telugu, Malayalam, Bengali, Marathi, Kannada, English & Japanese',
   resources: ['stream'],
-  types: ['movie', 'series', 'anime'],
+  types: ['movie', 'series', 'other'],
   idPrefixes: ['tt', 'tmdb', 'tvdb', 'animesalt', 'animeworld'],
   catalogs: [],
   behaviorHints: {
