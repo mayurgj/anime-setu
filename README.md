@@ -1,195 +1,164 @@
-﻿# AnimeSalt Stremio Add-on
+# 🌉 Anime Setu — Multi-CDN Anime Stremio Add-on
 
-A locally runnable Node.js & TypeScript Stremio HTTP add-on that scrapes [AnimeSalt](https://animesalt.cx/) and exposes its available streams directly to Stremio.
+<div align="center">
 
-Supports:
-- 🎬 Movies (e.g. *Shinchan Movie: The Spicy Kasukabe Dancers*)
-- 📺 TV/Anime series episodes (e.g. *Naruto Shippuden* S2E33)
-- 🌐 Multi-language audio (Hindi, Tamil, Telugu, Malayalam, Kannada, Bengali, English, Japanese, etc.)
-- 🎯 TMDB / TVDB / IMDb metadata resolution and intelligent title slug generation
-- ⚡ Fast in-memory caching with configurable TTLs
-- 🔍 Pure direct HTTP stream extraction without heavy headless browser automation
+**Stream Anime Movies & Series in Hindi, Tamil, Telugu, Malayalam, Bengali, Marathi, Kannada, English & Japanese**
+
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/mayurgj/anime-setu)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?logo=node.js)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org)
+[![Stremio](https://img.shields.io/badge/Stremio-Addon-7D47B7?logo=stremio)](https://stremio.com)
+[![Status](https://img.shields.io/badge/Status-Online-00D26A)](#)
+
+</div>
+
+---
+
+## ✨ Features
+
+- ⚡ **Dual Multi-CDN Scanning (Parallel)**:
+  - **AnimeSalt** (`animesalt.cx` / `as-cdn26.top`)
+  - **AnimeWorld** (`watchanimeworld.one` / `zephyrix.org` / `zn-grid.top`)
+- 🇮🇳 **Hindi First Priority & Multi-Audio**:
+  - Default **Hindi audio auto-start** with seamless track switching
+  - Full Indian regional audio support: *Hindi, Tamil, Telugu, Malayalam, Bengali, Marathi, Kannada*
+  - Original global audio tracks: *Japanese, English, Korean*
+- 🎬 **Movies & Series Aggregation**:
+  - Fast resolution for Anime Movies and TV/Anime Series
+  - Intelligent absolute episode numbering & multi-season mapping (e.g. *Naruto Shippuden* S8E12 → Ep 163)
+  - Reverse-engineered metadata matching via TMDB, TVDB, and IMDb IDs
+- 🛡️ **HLS Stream & Segment Proxy**:
+  - Deobfuscates signed token master playlists (`master.m3u8?md5=...&expires=...`)
+  - Intercepts and unmasks disguised `.js`/`.css` segment chunks to standard `video/mp2t`
+  - Dynamic Referer header forwarding (`https://play.zephyrix.org/`, `https://animesalt.cx/`)
+- 🎛️ **Web Configuration Dashboard**:
+  - **Quality Filter**: 1080P FHD, 720P HD, 480P SD, 360P Mobile
+  - **Audio Routing**: Choose preferred default audio language
+  - **Stream Limits**: Set maximum returned stream candidates
+  - **1-Click Stremio Install** & Manifest URL generator
+- 🔒 **Confidential Developer Test Bench**:
+  - Built-in live resolver with instant presets (Naruto, Shinchan, etc.)
+  - Source selector (`All Sources`, `AnimeSalt`, `AnimeWorld`)
+  - Integrated HLS.js player with dynamic resolution and audio track selector
+  - Hidden by default in production; unlockable via secret URL parameter: `?key=animesetu`
+
+---
+
+## 🚀 Live Public Deployment
+
+* **Add-on Configuration Hub**: [https://061949f7032e-animesetu.baby-beamup.club/](https://061949f7032e-animesetu.baby-beamup.club/)
+* **Stremio Manifest URL**: `https://061949f7032e-animesetu.baby-beamup.club/manifest.json`
+* **1-Click Stremio Install**: `stremio://061949f7032e-animesetu.baby-beamup.club/manifest.json`
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Runtime**: Node.js (v18+)
+- **Runtime**: Node.js (v20+ LTS)
 - **Language**: TypeScript (ES2022)
-- **Framework**: Express
-- **Scraping / Parsing**: Axios, Cheerio
-- **Package Manager**: `pnpm`
-- **Testing**: Vitest
+- **Framework**: Express, CORS
+- **Scrapers**: Axios, Cheerio
+- **Package Manager**: `pnpm` / `npm`
+- **Testing**: Vitest (23 Unit & Integration Tests)
+- **Deployment**: Beamup (Dokku / Herokuish buildpack)
 
 ---
 
-## 🔬 Discovered Stream Resolution Flow
+## 💻 Local Development Setup
 
-Based on network reverse-engineering and HAR analysis:
-
-```
-1. AnimeSalt Page Request:
-   GET https://animesalt.cx/movies/{slug}/
-   OR  https://animesalt.cx/episode/{slug}-{season}x{episode}/
-   → Parse HTML for player iframe: <iframe src="https://as-cdn26.top/video/{hash}">
-
-2. Player Page & Cookie Handshake:
-   GET https://as-cdn26.top/video/{hash} (with Referer: https://animesalt.cx/)
-   → Captures session cookie `fireplayer_player`
-   → Deobfuscates Dean Edwards packed JS `eval(function(p,a,c,k,e,d)...)` to extract video title, languages, and quality hints
-
-3. Stream Source Retrieval:
-   POST https://as-cdn26.top/player/index.php?data={hash}&do=getVideo
-   Body: hash={hash}&r=https://animesalt.cx/
-   Headers: Cookie, Referer, X-Requested-With
-   → Returns JSON containing the direct HLS `.m3u8` master playlist URL:
-     `https://as-cdn26.top/cdn/hls/{id}/master.m3u8?md5={token}&expires={timestamp}`
-
-4. Stremio Stream Response:
-   Exposes the playable HLS stream with proper title, binge groups, and proxy headers.
-```
-
----
-
-## 🚀 Getting Started
-
-### 1. Installation
-
-Clone this repository and install dependencies with `pnpm`:
+### 1. Clone & Install Dependencies
 
 ```bash
+git clone https://github.com/mayurgj/anime-setu.git
+cd anime-setu
 pnpm install
 ```
 
-### 2. Configuration
+### 2. Configure Environment
 
-Create your local `.env` file from the provided template:
+Copy the example environment configuration:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` (or `.env.local`) and configure your API keys:
+Edit `.env` to configure your API keys:
 
 ```env
 PORT=7000
+NODE_ENV=development
+DEBUG=true
 
+# Metadata API Keys
 TMDB_API_KEY=your_tmdb_api_key
 TMDB_READ_TOKEN=your_tmdb_read_token
 TVDB_API_KEY=your_tvdb_api_key
 
+# Scraper Endpoints
 ANIMESALT_BASE_URL=https://animesalt.cx
-ANIMESALT_CDN_URL=https://as-cdn26.top
-
-DEBUG=true
-
-# Cache TTLs (in seconds)
-CACHE_TTL_METADATA=3600
-CACHE_TTL_ANIMESALT_PAGE=300
-CACHE_TTL_STREAM_URL=180
+WATCHANIMEWORLD_BASE_URL=https://watchanimeworld.one
 ```
 
----
-
-## 💻 Running the Add-on
-
-### Development Mode
-
-Runs the TypeScript source files with auto-reload:
+### 3. Start Development Server
 
 ```bash
 pnpm dev
 ```
 
-### Production Build & Run
-
-```bash
-pnpm build
-pnpm start
-```
-
-The server starts on port `7000` (or the configured `PORT`).
+The server will start on `http://localhost:7000/`.
 
 ---
 
 ## 🧪 Testing
 
-### Unit Tests (Fixture-based, offline)
+Run the Vitest test suite (23 offline & live integration tests):
 
 ```bash
+# Run all tests
 pnpm test
+
+# Build TypeScript to dist
+pnpm build
 ```
-
-Runs all 5 test suites covering:
-- Title slug normalization & series slug parsing
-- Dean Edwards packed JavaScript deobfuscation
-- HTML parser & iframe selector extractors
-- Stremio stream resolution
-
-### Live Integration Tests
-
-```bash
-pnpm test:integration
-```
-
-Performs live end-to-end tests scraping real movie and series streams from AnimeSalt.
-
----
-
-## 📺 Stremio Installation
-
-### 1. Same Device (Desktop)
-
-1. Start the add-on server (`pnpm dev` or `pnpm start`).
-2. Open Stremio.
-3. Go to **Add-ons** → **Community Add-ons** (or search bar).
-4. Paste the local manifest URL:
-   ```text
-   http://localhost:7000/manifest.json
-   ```
-5. Click **Install**.
-
-### 2. Other Devices on Local Network (Android TV, Mobile, Fire TV, Tablet)
-
-1. Find your computer's local IP address (e.g. `192.168.1.50`). The server will automatically print your LAN URLs on startup.
-2. Open Stremio on your target device (connected to the same Wi-Fi).
-3. In the add-on search/install field, enter:
-   ```text
-   http://192.168.x.x:7000/manifest.json
-   ```
-4. Click **Install**.
 
 ---
 
 ## 📡 API Endpoints
 
-| Endpoint | Description |
-|---|---|
-| `GET /` | Health check endpoint |
-| `GET /manifest.json` | Stremio add-on manifest |
-| `GET /stream/movie/:id.json` | Stremio movie stream endpoint (`:id` can be TMDB ID, IMDb ID, or slug) |
-| `GET /stream/series/:id.json` | Stremio series stream endpoint (e.g. `tmdb:31910:2:33.json` or `naruto-shippuden:2:33.json`) |
-| `GET /debug/animesalt/movie?slug=...` | Debug endpoint for inspecting movie stream extraction |
-| `GET /debug/animesalt/episode?slug=...&season=...&episode=...` | Debug endpoint for inspecting series episode stream extraction |
+| Endpoint | Method | Description |
+|---|---|---|
+| `/` | `GET` | Configuration Dashboard & Stremio Installation Hub |
+| `/manifest.json` | `GET` | Stremio Add-on Manifest |
+| `/:config/manifest.json` | `GET` | User-configured Stremio Add-on Manifest |
+| `/stream/:type/:id.json` | `GET` | Stream resolver endpoint (`type`: `movie` or `series`, `id`: IMDb, TMDB, or slug) |
+| `/:config/stream/:type/:id.json` | `GET` | Stream resolver endpoint with user-selected configuration |
+| `/proxy/hls` | `GET` | HLS Master playlist and segment unmasking proxy |
+| `/api/app-info` | `GET` | Environment status and deployment detector |
 
-### Example Debug Requests
+---
 
-```bash
-# Health check
-curl http://localhost:7000/
+## 🚢 Deploying to Beamup
 
-# Manifest
-curl http://localhost:7000/manifest.json
+1. **Install Beamup CLI**:
+   ```bash
+   npm install beamup-cli -g
+   ```
 
-# Movie Debug
-curl "http://localhost:7000/debug/animesalt/movie?slug=shinchan-movie-the-spicy-kasukabe-dancers"
+2. **Configure your GitHub account & host**:
+   ```bash
+   beamup config
+   # Host: a.baby-beamup.club
+   # GitHub username: mayurgj
+   ```
 
-# Episode Debug
-curl "http://localhost:7000/debug/animesalt/episode?slug=naruto-shippuden&season=2&episode=33"
+3. **Deploy**:
+   ```bash
+   beamup
+   # Or push directly: git push beamup master
+   ```
 
-# Stremio Movie Stream
-curl http://localhost:7000/stream/movie/shinchan-movie-the-spicy-kasukabe-dancers.json
+---
 
-# Stremio Series Stream
-curl http://localhost:7000/stream/series/tmdb:31910:2:33.json
-```
+## 📄 License
+
+MIT License. Designed and built with ❤️ for the anime streaming community.
