@@ -1,0 +1,570 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta http-equiv="content-language" content="en"/>
+        <title>stream</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta name="referrer" content="no-referrer"/>
+        <script type="text/javascript">
+            var defaultAudio = ["hin", "tam", "tel", "ben", "mal", "mar", "kan", "eng", "kor", "jpn", "und"];
+            var defaultCaptions = {
+                "eng": "eng",
+                "kor": "eng",
+                "jpn": "eng"
+            };
+            var player_base_url = "https://as-cdn26.top";
+            var player_loaded = false;
+            var player_language = "en";
+        </script>
+        <script type="text/javascript" src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/countup"></script>
+        <script type="text/javascript" src="https://as-cdn26.top/player/assets/scripts.php?v=7"></script>
+        <script src="https://as-cdn26.top/player/assets/remodal/remodal.min.js"></script>
+        <link rel="stylesheet" href="https://as-cdn26.top/player/assets/remodal/remodal-default-theme.css">
+        <link rel="stylesheet" href="https://as-cdn26.top/player/assets/remodal/remodal.css">
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+        <style type="text/css">
+            html,body {
+                font-family: Tahoma;
+                height: 100%;
+                width: 100%;
+                padding: 0;
+                margin: 0;
+                background-color: black
+            }
+
+            #player,#playerbase {
+                position: fixed;
+                width: 100%;
+                height: 100%!important;
+                left: 0;
+                top: 0;
+                z-index: 10
+            }
+
+            .jw-display-icon-display {
+                border-radius: 50%
+            }
+
+            .loader {
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 999996;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,.3)
+            }
+
+            .loader>.page-loader__spinner {
+                position: absolute;
+                float: left;
+                left: 50%;
+                top: 50%;
+                height: 100px;
+                width: 100px;
+                background: url('https://as-cdn26.top/player/assets/images/loading.svg');
+                background-repeat: no-repeat;
+                background-size: 100px 100px;
+                transform: translate(-50%,-50%)
+            }
+
+            .rek {
+                position: absolute;
+                z-index: 999998;
+                float: left;
+                left: 50%;
+                top: 50%;
+                height: auto;
+                width: auto;
+                transform: translate(-50%,-50%);
+                background-color: rgba(0,0,0,.3)
+            }
+
+            .rek_close {
+                z-index: 999999;
+                position: absolute;
+                color: white;
+                top: 12px;
+                right: 3px;
+                cursor: pointer;
+                font-size: 20px;
+                font-weight: 700;
+                line-height: 0;
+                -webkit-transition-duration: 0.4s;
+                opacity: 1
+            }
+
+            .rek_counter {
+                display: block;
+                z-index: 999999;
+                position: absolute;
+                color: black;
+                margin: auto;
+                width: 100%;
+                bottom: 8px;
+                background-color: rgba(255,255,255,.5);
+                font-family: tahoma;
+                text-align: center;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 700;
+                text-shadow: 1px 1px 1px white,0 0 1em white,0 0 .2em black
+            }
+
+            .pppx {
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 999995;
+                width: 100%;
+                height: 100%;
+                cursor: pointer;
+            }
+
+            .jw-title-primary {
+                text-align: center;
+            }
+        </style>
+        <style type="text/css">
+            .play-button-outer {
+                position: absolute;
+                float: left;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%,-50%);
+                z-index: 999997;
+                width: 6em;
+                height: 6em;
+                background-color: gray;
+                cursor: pointer
+            }
+
+            .play-button {
+                margin: 0 auto;
+                top: 25%;
+                position: relative;
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 1.5em 0 1.5em 3em;
+                border-color: transparent transparent transparent #000;
+                opacity: .75
+            }
+
+            .play-button-outer:hover {
+                background-color: #a9a9a9
+            }
+
+            .play-button-outer:hover .play-button {
+                opacity: 1
+            }
+        </style>
+        <style type="text/css">
+            .dropdown {
+                position: relative;
+                display: inline-block;
+                font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+                font-size: 14px;
+                z-index: 999998;
+                margin: 5px;
+                -webkit-box-shadow: 0 0 5px 0 rgba(0,0,0,.75);
+                -moz-box-shadow: 0 0 5px 0 rgba(0,0,0,.75);
+                box-shadow: 0 0 5px 0 rgba(0,0,0,.75)
+            }
+
+            .dropdown>a,.dropdown>button {
+                font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+                font-size: 14px;
+                background-color: #b22222;
+                border: 0;
+                padding: 6px 23px 6px 10px;
+                border-radius: 2px;
+                display: inline-block;
+                color: #fff;
+                text-decoration: none
+            }
+
+            .dropdown>a:before,.dropdown>button:before {
+                position: absolute;
+                right: 7px;
+                top: 12px;
+                content: ' ';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px solid #fff
+            }
+
+            .dropdown input[type=checkbox] {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                opacity: 0
+            }
+
+            .dropdown2 {
+                right: 0px;
+                position: absolute !important;
+            }
+
+            .dropdown input[type=checkbox]:checked {
+                position: fixed;
+                z-index: +0;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0
+            }
+
+            .dropdown1 ul {
+                max-height: 200px;
+                overflow: auto;
+                position: absolute;
+                top: 18px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                left: 0;
+                list-style: none;
+                padding: 6px 0;
+                visibility: hidden;
+                background-color: #fff;
+                box-shadow: 0 3px 6px rgba(0,0,0,.175);
+                opacity: 0;
+                transition: opacity .25s linear,top .25s linear
+            }
+
+            .dropdown2 ul {
+                max-height: 200px;
+                overflow: auto;
+                position: absolute;
+                top: 18px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                right: 0;
+                list-style: none;
+                padding: 6px 0;
+                visibility: hidden;
+                background-color: #fff;
+                box-shadow: 0 3px 6px rgba(0,0,0,.175);
+                opacity: 0;
+                transition: opacity .25s linear,top .25s linear
+            }
+
+            .dropdown input[type=checkbox]:checked+ul {
+                opacity: 1;
+                visibility: visible
+            }
+
+            .dropdown ul li {
+                display: block;
+                white-space: nowrap
+            }
+
+            .dropdown ul li:hover {
+                background-color: #f5f5f5;
+                cursor: pointer
+            }
+
+            .dropdown ul li a {
+                text-decoration: none;
+                display: block;
+                color: #000;
+                padding: 6px 16px;
+                min-width: 100px;
+                font-size: 14px;
+                line-height: 20px
+            }
+
+            .dropdown .divider {
+                height: 1px;
+                margin: 9px 0;
+                overflow: hidden;
+                background-color: #e5e5e5;
+                font-size: 1px;
+                padding: 0
+            }
+        }
+
+        /*
+.dropdown-content2 {	max-width: 150px !important; overflow: hidden !important;
+}
+.dropdown-content2 li {	text-overflow: ellipsis;	animation-play-state: paused
+}
+.dropdown-content2 li:hover {	background-color:#fff !important;	animation: marquee 2s linear infinite;
+}
+@keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); }
+}
+*/
+    </style>
+    <style type="text/css">
+        /*
+@media only screen and (min-width:700px){.jw-settings-menu{min-width:250px;opacity:.8!important}}@media only screen and (max-width:600px){[button=audioTracks],[button=backward],[button=download],[button=forward],[button=subtitlemanager]{display:none;visibility:hidden}}
+*/
+        /*.jw-state-idle .jw-svg-icon-play path {display: none;}.jw-state-idle .jw-svg-icon-play {background: url("/player/assets/images/player-play.webp") no-repeat center center;background-size: contain;}@media not all,(-webkit-min-device-pixel-ratio:2) {.jw-state-idle .jw-svg-icon-play {background: url("/player/assets/images/player-play@2x.webp") no-repeat center center;}}*/
+        /*.jw-preview {transition: all .3s;}.jw-media:hover + .jw-preview {opacity: .8;transform: scale(1.1);}*/
+    </style>
+    <style type="text/css">
+        /*
+.jw-progress { border-radius: 3px;
+}
+.jw-buffer { border-radius: 3px; }
+.jw-slider-horizontal .jw-slider-container { height: 9px; border-radius: 3px; width: 97.5%; margin: 0 auto;
+}
+.jw-rail { border-radius: 3px;
+}
+.jw-slider-time .jw-rail, .jw-horizontal-volume-container .jw-rail, .jw-slider-time .jw-buffer, .jw-horizontal-volume-container .jw-buffer, .jw-slider-time .jw-progress, .jw-horizontal-volume-container .jw-progress, .jw-slider-time .jw-cue, .jw-horizontal-volume-container .jw-cue { -webkit-transform: translate(0, -50%) !important; transform: translate(0, -50%) !important;
+}
+*/
+    </style>
+    <style type="text/css">
+        [button="audioTracks"] .jw-button-image {
+            -webkit-filter: invert(1);
+            filter: invert(80%);
+            zoom: 0.8; }
+    </style>
+    <style type="text/css">
+        .modals {
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 999998;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            border: 1px solid rgba(255, 255, 255, .4);
+            border-radius: 10px 10px 10px 10px;
+            background-color: black;
+            box-shadow: white 0 0 3px;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            color: white;
+            align-items: center;
+            flex-wrap: wrap;
+            flex-direction: column;
+        }
+
+        .modal .modal-footer {
+            margin-top: 1rem;
+        }
+
+        .cs, .cc {
+            background-color: white;
+            color: black;
+            padding: 0.3rem;
+            border: 1px solid gray;
+            border-radius: 10px 10px 10px 10px;
+        }
+    </style>
+    <style type="text/css">
+        .jw-svg-icon-custom-forward {
+            background: url(/player/assets/jwplayer/icons/10-next.svg) no-repeat !important;
+            background-size: contain !important;
+            background-position: center !important;
+        }
+
+        .jw-svg-icon-custom-backward {
+            background: url(/player/assets/jwplayer/icons/10-prev.svg) no-repeat !important;
+            background-size: contain !important;
+            background-position: center !important;
+        }
+    </style>
+    <script src="/ro_redirect.js"></script>
+</head>
+<body>
+    <div class="loader" style="">
+        <div class="page-loader__spinner"></div>
+    </div>
+    <div id="playerjs" style="display:none;width:100%;height:100%;"></div>
+    <div id="playerbase" style="display:none;"></div>
+    <div class="play-button-outer" onclick="$(this).remove();$('.loader').show();fireload();" style="display:none;">
+        <div class="play-button"></div>
+    </div>
+    <div class="cc-overlay" style="display:none">
+        <div class="cc-overlay__inner">
+            <div class="cc-settings">
+                <div class="cc-settings__overlay"></div>
+                <div class="cc-settings__modal">
+                    <div class="cc-settings__modal-header">
+                        <h1 class="cc-settings__title">Subtitle Settings</h1>
+                        <button class="cc-settings__close" onclick="SubtitleManager.GUI()">
+                            <img src="/player/assets/jwplayer/subtitlemanager/close.png">
+                        </button>
+                    </div>
+                    <form class="cc-settings__form">
+                        <div class="cc-settings__preview-container">
+                            <div class="cc-settings__preview">
+                                <div id="cc-preview-bg">&nbsp;</div>
+                                <p id="cc-preview" class="cc-settings__preview-text">The subtitle will look like this.</p>
+                            </div>
+                        </div>
+                        <div class="cc-settings__options">
+                            <div class="cc-settings__basic-styles">
+                                <div class="cc-settings__font-size cc-settings__option">
+                                    <label>
+                                        <p>Font Size</p>
+                                        <div class="slider">
+                                            <input id="fontSize" type="range" min="10" max="40">
+                                            <span id="fontSizeText" class="slider-value">20px</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="cc-settings__font-family cc-settings__option">
+                                    <label>
+                                        <p>Font Name</p>
+                                        <select id="fontFamily" style="color:black;">
+                                            <option value="Arial">
+                                                <font color="black">Arial</font>
+                                            </option>
+                                            <option value="Arial Black">Arial Black</option>
+                                            <option value="Courier New">Courier New</option>
+                                            <option value="Georgia">Georgia</option>
+                                            <option value="Impact">Impact</option>
+                                            <option value="Lucida Console">Lucida Console</option>
+                                            <option value="Tahoma">Tahoma</option>
+                                            <option value="Times New Roman">Times New Roman</option>
+                                            <option value="Trebuchet MS">Trebuchet MS</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="cc-settings__edge-style cc-settings__option">
+                                    <label>
+                                        <p>Subtitle Shadow</p>
+                                        <select id="edgeStyle" style="color:black;">
+                                            <option value="none">None</option>
+                                            <option value="dropshadow">Drop Shadow</option>
+                                            <option value="raised">Outer Shade</option>
+                                            <option value="depressed">Top Shadow</option>
+                                            <option value="uniform">Edge Shadow</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cc-settings__colors">
+                                <div class="cc-settings__text-color cc-settings__option">
+                                    <label>
+                                        <p>Font Color</p>
+                                        <div id="color" value="" class="color-picker">
+                                            <div class="color-picker__color" style="background: #000000;"></div>
+                                            <div class="color-picker__color" style="background: #0000FF;"></div>
+                                            <div class="color-picker__color" style="background: #00FF00;"></div>
+                                            <div class="color-picker__color" style="background: #00FFFF;"></div>
+                                            <div class="color-picker__color" style="background: #FF0000;"></div>
+                                            <div class="color-picker__color" style="background: #FF00FF;"></div>
+                                            <div class="color-picker__color" style="background: #FFFF00;"></div>
+                                            <div class="color-picker__color" style="background: #FFFFFF;"></div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="cc-settings__background-color cc-settings__option">
+                                    <label>
+                                        <p>Background Color</p>
+                                        <div id="backgroundColor" value="" class="color-picker">
+                                            <div class="color-picker__color" style="background: #000000;"></div>
+                                            <div class="color-picker__color" style="background: #0000FF;"></div>
+                                            <div class="color-picker__color" style="background: #00FF00;"></div>
+                                            <div class="color-picker__color" style="background: #00FFFF;"></div>
+                                            <div class="color-picker__color" style="background: #FF0000;"></div>
+                                            <div class="color-picker__color" style="background: #FF00FF;"></div>
+                                            <div class="color-picker__color" style="background: #FFFF00;"></div>
+                                            <div class="color-picker__color" style="background: #FFFFFF;"></div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="cc-settings__window-color cc-settings__option">
+                                    <label>
+                                        <p>Window Color</p>
+                                        <div id="windowColor" value="" class="color-picker">
+                                            <div class="color-picker__color" style="background: #000000;"></div>
+                                            <div class="color-picker__color" style="background: #0000FF;"></div>
+                                            <div class="color-picker__color" style="background: #00FF00;"></div>
+                                            <div class="color-picker__color" style="background: #00FFFF;"></div>
+                                            <div class="color-picker__color" style="background: #FF0000;"></div>
+                                            <div class="color-picker__color" style="background: #FF00FF;"></div>
+                                            <div class="color-picker__color" style="background: #FFFF00;"></div>
+                                            <div class="color-picker__color" style="background: #FFFFFF;"></div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="cc-settings__opacity">
+                                <div class="cc-settings__text-opacity cc-settings__option">
+                                    <label>
+                                        <p>Text Opacity</p>
+                                        <div class="slider">
+                                            <input id="fontOpacity" type="range" min="0" max="100">
+                                            <span id="fontOpacityText" class="slider-value">100%</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="cc-settings__background-opacity cc-settings__option">
+                                    <label>
+                                        <p>Background Opacity</p>
+                                        <div class="slider">
+                                            <input id="backgroundOpacity" type="range" min="0" max="100">
+                                            <span id="backgroundOpacityText" class="slider-value">0%</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="cc-settings__window-opacity cc-settings__option">
+                                    <label>
+                                        <p>Window Opacity</p>
+                                        <div class="slider">
+                                            <input id="windowOpacity" type="range" min="0" max="100">
+                                            <span id="windowOpacityText" class="slider-value">0%</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="cc-settings__button-container">
+                        <button onclick="SubtitleManager.save()" class="cc-settings__button cc-settings__save-button">Save Settings</button>
+                        <button onclick="SubtitleManager.reset()" class="cc-settings__button cc-settings__reset-button">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var playerjsSubtitle = "[English]https://as-cdn28.top/p/E1z4zPz0N_SahGnPcI1_cytxm8csrLURXEsvsyQQB5r0uvLqJX_1W-W4N097sX1Mn3uKxsuXqQallsZeKC3bgVa0zpW5dpbt6_jrFfXAEf4.jpg";
+        var playerjsDefaultSubtitle = "English";
+        eval(function(p, a, c, k, e, d) {
+            e = function(c) {
+                return (c < a ? '' : e(parseInt(c / a))) + ((c = c % a) > 35 ? String.fromCharCode(c + 29) : c.toString(36))
+            }
+            ;
+            if (!''.replace(/^/, String)) {
+                while (c--) {
+                    d[e(c)] = k[c] || e(c)
+                }
+                k = [function(e) {
+                    return d[e]
+                }
+                ];
+                e = function() {
+                    return '\\w+'
+                }
+                ;
+                c = 1
+            }
+            ;while (c--) {
+                if (k[c]) {
+                    p = p.replace(new RegExp('\\b' + e(c) + '\\b','g'), k[c])
+                }
+            }
+            return p
+        }('f z(C=1m){10("11",{"12":{"13":"14","15":"16:\\/\\/17.y.4\\/18\\/A\\/Z\\/d\\/19.1b"},"1c":{"e":"","1d":"","1e":"g-1f","1g":2},"1h":[{"t":"o","e":"a:\\/\\/i-n.g\\/p\\/1i-1j.s","1k":"1a","1l":"N","W":2},{"e":"a:\\/\\/i-n.g\\/p\\/I-J.s","t":"D"}],"o":{"M":"20","L":"O P"},"Q":"","R":"\\\\c\\\\q\\\\x\\\\S\\\\c\\\\b\\\\x\\\\w\\\\T\\\\u\\\\h\\\\w\\\\9\\\\b\\\\U\\\\V\\\\9\\\\u\\\\1n\\\\1M\\\\c\\\\5\\\\r\\\\l\\\\k\\\\1O\\\\r\\\\q\\\\m\\\\b\\\\1R\\\\1S\\\\9\\\\5\\\\h\\\\1U\\\\m\\\\5\\\\9\\\\l\\\\k\\\\5\\\\21\\\\22","23":3,"24":3,"25":3,"26":"1N 1L - 1z B","1K":2,"1p":3,"1q":[],"1r":2,"1s":["7:\\/\\/6.1t.4","7:\\/\\/6.1u.4.1v","7:\\/\\/6.1w.4","7:\\/\\/6.1y.1A"],"1B":2,"1C":"0","1D":"a:\\/\\/y.4\\/","1F":2,"1G":"1","1H":2,"1J":"","Y":{"X":"1I-1E","1o":"1x-1Z"},"1Y":"d","1X":"1W\\/1V=","1T":"a:\\/\\/1Q.p.1P.4\\/A\\/v\\/8.B.1\\/d.K"},3,C)}$(f(){$(H).G(f(){F j=3;E(j){z()}})});', 62, 131, '||false|true|com|x57|tracker|wss||x4e|https|x54|x59|jwplayer|file|function|top|x49|as|fireplay|x4d|x6d|x5a|cdn28|captions||x6a|x52|jpg|kind|x44||x34|x67|firevideoplayer|fireload|player|33|source|thumbnails|if|var|ready|document|E1z4zPz0N_SahGnPcI1_cytxm8csrLURXEsvsyQQB5p9OxsNeADG2b4D|QfBjKVqT9kEs8UeX4mF7TES7gDE_A|js|fontfamily|fontSize|eng|Trebuchet|MS|defaultImage|ck|x79|x4f|x63|x77|default|intro|fields|assets|FirePlayer|05f971b5ec196b8c65b75d2ef8267331|skin|name|alaska|url|http|demo|fireplayer|netflix|English|css|logo|link|position|right|active|tracks|E1z4zPz0N_SahGnPcI1_cytxm8csrLURXEsvsyQQB5r0uvLqJX_1W|W4N097sX1Mn3uKxsuXqQallsZeKC3bgVa0zpW5dpbt6_jrFfXAEf4|label|language|null|x4a|outro|rememberPosition|advertising|p2p|p2pTrackers|openwebtorrent|novage|ua|one3up|1207|btorrent|Episode|xyz|popactive|poplimit|popurl|289|downloadFile|downloadType|attachmentSystem|199|stretching|displaytitle|Shippuden|x6b|Naruto|x47|jwpcdn|ssl|x56|x6c|jwPlayerURL|x33|AfL0g8VE1fRbL84|eNFaXCjyURVoCCGiHp7HTQ3hDhE|jwPlayerKey|videoPlayer|1296||x45|x3d|SubtitleManager|jwplayer8button1|jwplayer8quality|title'.split('|'), 0, {}))
+    </script>
+    <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v3d52b47920f24c319d37e2661827c42b1787588026925" integrity="sha512-d9sL6GJLXn6fInD1+TVXhTcQOsmxeHfmHAvwGDIxp5TO+uo1fiWW7mHomMj4MLRlCsJDTqXzWLHJFFlPCEIj/A==" data-cf-beacon='{"version":"2024.11.0","token":"0b39a4dcaf1344f7976ae404d7b4635d","r":1}' crossorigin="anonymous"></script>
+</body>
+</html>

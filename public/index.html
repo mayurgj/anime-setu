@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime Setu — Stremio Configuration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              bg: '#090a0c',
+              card: '#111317',
+              subtle: '#16181f',
+              border: '#21242c',
+            },
+            brand: {
+              DEFAULT: '#ff5500',
+              hover: '#e04a00',
+            },
+            success: '#00d26a'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=rocket_launch,volume_up,full_hd,hd,high_quality,content_copy" />
+  <style>
+    * {
+      border-radius: 0px !important;
+    }
+    body {
+      background-color: #090a0c;
+      color: #f1f3f7;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+    }
+  
+    select {
+      background-color: #16181f !important;
+      color: #f1f3f7 !important;
+      appearance: auto;
+    }
+    select option {
+      background-color: #16181f !important;
+      color: #f1f3f7 !important;
+      padding: 8px 12px;
+    }
+    select option:checked {
+      background-color: #ff5500 !important;
+      color: #000000 !important;
+      font-weight: bold;
+    }
+
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-3 md:p-6 w-full">
+
+  <!-- UNIFIED CONTAINER -->
+  <div class="w-full flex flex-col gap-3.5">
+
+    <!-- COMPACT TOP HEADER BAR -->
+    <header class="w-full bg-dark-card border border-dark-border p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 bg-brand text-black flex items-center justify-center font-mono text-base font-black flex-shrink-0">
+          AS
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-lg md:text-xl font-black text-white">Anime Setu</h1>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-[#0d1a12] border border-[#163d25] text-success font-mono text-[10px] font-bold">
+              <span class="w-1.5 h-1.5 bg-success"></span>
+              ONLINE
+            </span>
+          </div>
+          <p class="text-xs text-gray-400 mt-0.5">
+            Bridge to Anime & Series in Hindi & Regional Indian Audio
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Install & Copy Actions -->
+      <div class="flex items-center gap-2 w-full md:w-auto">
+        <input type="text" id="manifest-url" class="flex-1 md:w-80 bg-dark-subtle border border-dark-border px-2.5 py-2 font-mono text-xs text-gray-300 outline-none" readonly>
+        <button onclick="copyManifest()" class="px-3 py-2 bg-dark-subtle hover:bg-dark-border border border-dark-border text-xs font-bold uppercase text-white flex-shrink-0 transition">
+          Copy
+        </button>
+        <a id="install-btn" href="#" class="px-4 py-2 bg-brand hover:bg-brand-hover text-black font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0 transition">
+          <span class="material-symbols-outlined text-[16px] leading-none select-none">rocket_launch</span>
+          <span>Install in Stremio</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- 2-COLUMN BALANCED DASHBOARD -->
+    <div id="main-dashboard-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 w-full items-stretch">
+
+      <!-- LEFT COLUMN: CONFIGURATION & SEARCH BENCH (Span 6) -->
+      <div id="left-config-column" class="lg:col-span-6 flex flex-col gap-3.5 justify-between">
+
+        <!-- CONTAINER FOR CONFIGURATION CARDS -->
+        <div id="config-cards-container" class="flex flex-col gap-3.5 w-full">
+
+        <!-- 1. RESOLUTION FILTER CARD (4 Columns: 1080P, 720P, 480P, 360P) -->
+        <div class="bg-dark-card border border-dark-border p-4 flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-brand block">
+                QUALITY RESOLUTIONS
+              </span>
+              <h2 class="text-sm font-extrabold text-white">Stream Resolutions Filter</h2>
+            </div>
+            <span class="text-[11px] text-gray-400 font-mono">4 Formats</span>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2 w-full">
+            <label class="relative cursor-pointer">
+              <input type="checkbox" id="res-1080p" value="1080p" checked onchange="updateConfig()" class="peer sr-only">
+              <div class="py-2.5 px-2 bg-dark-subtle border border-dark-border peer-checked:bg-[#1c1510] peer-checked:border-brand flex flex-col items-center justify-center text-center transition">
+                <span class="material-symbols-outlined text-[18px] text-gray-400 peer-checked:text-brand leading-none">full_hd</span>
+                <span class="font-mono text-xs font-extrabold text-white peer-checked:text-brand mt-1">1080P</span>
+                <span class="text-[9px] text-gray-500 font-semibold mt-0.5">FHD</span>
+              </div>
+            </label>
+
+            <label class="relative cursor-pointer">
+              <input type="checkbox" id="res-720p" value="720p" checked onchange="updateConfig()" class="peer sr-only">
+              <div class="py-2.5 px-2 bg-dark-subtle border border-dark-border peer-checked:bg-[#1c1510] peer-checked:border-brand flex flex-col items-center justify-center text-center transition">
+                <span class="material-symbols-outlined text-[18px] text-gray-400 peer-checked:text-brand leading-none">hd</span>
+                <span class="font-mono text-xs font-extrabold text-white peer-checked:text-brand mt-1">720P</span>
+                <span class="text-[9px] text-gray-500 font-semibold mt-0.5">HD</span>
+              </div>
+            </label>
+
+            <label class="relative cursor-pointer">
+              <input type="checkbox" id="res-480p" value="480p" checked onchange="updateConfig()" class="peer sr-only">
+              <div class="py-2.5 px-2 bg-dark-subtle border border-dark-border peer-checked:bg-[#1c1510] peer-checked:border-brand flex flex-col items-center justify-center text-center transition">
+                <span class="material-symbols-outlined text-[18px] text-gray-400 peer-checked:text-brand leading-none">high_quality</span>
+                <span class="font-mono text-xs font-extrabold text-white peer-checked:text-brand mt-1">480P</span>
+                <span class="text-[9px] text-gray-500 font-semibold mt-0.5">SD</span>
+              </div>
+            </label>
+
+            <label class="relative cursor-pointer">
+              <input type="checkbox" id="res-360p" value="360p" checked onchange="updateConfig()" class="peer sr-only">
+              <div class="py-2.5 px-2 bg-dark-subtle border border-dark-border peer-checked:bg-[#1c1510] peer-checked:border-brand flex flex-col items-center justify-center text-center transition">
+                <span class="material-symbols-outlined text-[18px] text-gray-400 peer-checked:text-brand leading-none">high_quality</span>
+                <span class="font-mono text-xs font-extrabold text-white peer-checked:text-brand mt-1">360P</span>
+                <span class="text-[9px] text-gray-500 font-semibold mt-0.5">Mobile</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. AUDIO & STREAM LIMITS CARD -->
+        <div class="bg-dark-card border border-dark-border p-4 flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-brand block">
+                AUDIO & SCRAPERS
+              </span>
+              <h2 class="text-sm font-extrabold text-white">Audio Language & Limit</h2>
+            </div>
+            <div class="flex items-center gap-1.5 font-mono text-[10px]">
+              <span class="px-1.5 py-0.5 bg-[#0d1a12] border border-[#163d25] text-success font-bold">AnimeSalt: ONLINE</span>
+              <span class="px-1.5 py-0.5 bg-[#0d1a12] border border-[#163d25] text-success font-bold">AnimeWorld: ONLINE</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div class="flex flex-col gap-1">
+              <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Default Audio Priority</label>
+              <select id="default-lang" class="w-full bg-dark-subtle border border-dark-border p-2 text-xs font-semibold text-white outline-none focus:border-brand" onchange="updateConfig()">
+                <option value="hin" selected>🇮🇳 Hindi (Default)</option>
+                <option value="tam">🇮🇳 Tamil</option>
+                <option value="tel">🇮🇳 Telugu</option>
+                <option value="mal">🇮🇳 Malayalam</option>
+                <option value="ben">🇮🇳 Bengali</option>
+                <option value="kan">🇮🇳 Kannada</option>
+                <option value="mar">🇮🇳 Marathi</option>
+                <option value="eng">🇬🇧 English</option>
+                <option value="jpn">🇯🇵 Japanese</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Stream Options Limit</label>
+              <select id="max-streams" class="w-full bg-dark-subtle border border-dark-border p-2 text-xs font-semibold text-white outline-none focus:border-brand" onchange="updateConfig()">
+                <option value="0" selected>All Matching Resolutions</option>
+                <option value="1">Top 1 Stream Only</option>
+                <option value="2">Top 2 Streams</option>
+                <option value="3">Top 3 Streams</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        </div>
+
+        <!-- 3. TEST BENCH & SEARCH RESOLVER CARD -->
+        <div id="test-bench-card" class="bg-dark-card border border-dark-border p-4 flex flex-col gap-3 flex-1 justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-brand block">
+                  TEST BENCH
+                </span>
+                <h2 class="text-sm font-extrabold text-white">Live Stream Resolver</h2>
+              </div>
+              <span id="meta-status-badge" class="font-mono text-[10px] text-gray-400 bg-dark-subtle px-2 py-0.5 border border-dark-border">
+                READY
+              </span>
+            </div>
+
+            <div class="flex gap-1.5 mt-3">
+              <input type="text" id="test-query" class="flex-1 bg-dark-subtle border border-dark-border px-3 py-2 text-xs text-white outline-none focus:border-brand" placeholder="Title or IMDb ID (e.g. tt0988824)" value="tt0988824">
+              <input type="number" id="test-season" class="w-14 bg-dark-subtle border border-dark-border px-2 py-2 text-xs text-white text-center outline-none focus:border-brand" placeholder="S#" value="8">
+              <input type="number" id="test-episode" class="w-14 bg-dark-subtle border border-dark-border px-2 py-2 text-xs text-white text-center outline-none focus:border-brand" placeholder="E#" value="12">
+              <button onclick="testResolve()" class="bg-brand hover:bg-brand-hover text-black px-4 py-2 text-xs font-extrabold uppercase tracking-wider transition flex-shrink-0">
+                Test
+              </button>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 mt-2.5">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] font-mono font-bold text-gray-500">PRESETS:</span>
+                <button onclick="setPreset('tt0988824', '8', '12', 'series')" class="px-2 py-1 bg-dark-subtle border border-dark-border hover:border-brand text-gray-300 hover:text-brand text-[11px] font-medium transition">
+                  🍥 Naruto S8E12
+                </button>
+                <button onclick="setPreset('naruto-shippuden', '2', '33', 'series')" class="px-2 py-1 bg-dark-subtle border border-dark-border hover:border-brand text-gray-300 hover:text-brand text-[11px] font-medium transition">
+                  🍥 Naruto S2E33
+                </button>
+                <button onclick="setPreset('shinchan-pursuit-of-the-balls-of-darkness', '', '', 'movie')" class="px-2 py-1 bg-dark-subtle border border-dark-border hover:border-brand text-gray-300 hover:text-brand text-[11px] font-medium transition">
+                  🍙 Shinchan Movie
+                </button>
+              </div>
+
+              <!-- Right: Source Dropdown -->
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-mono font-bold text-gray-500 uppercase">SOURCE:</span>
+                <select id="test-source" class="bg-[#16181f] text-[11px] font-mono font-bold text-brand outline-none cursor-pointer py-1 px-2 border border-dark-border" onchange="testResolve()">
+                  <option value="all" selected>All Sources (Parallel)</option>
+                  <option value="animesalt">AnimeSalt</option>
+                  <option value="animeworld">AnimeWorld</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Resolution Stream Summary Box -->
+          <div id="test-bench-summary" class="p-3 bg-dark-subtle border border-dark-border flex flex-col gap-1.5 mt-2">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-gray-400 font-bold">Query Target:</span>
+              <span id="summary-title" class="text-white font-bold truncate max-w-[220px]">Naruto Shippūden S8E12</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-gray-400 font-bold">Scraper Source:</span>
+              <span id="summary-source" class="text-brand font-bold">AnimeSalt + AnimeWorld (Parallel)</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-gray-400 font-bold">Audio Routing:</span>
+              <span id="summary-audio" class="text-success font-bold">Hindi Priority (Auto-Start)</span>
+            </div>
+          </div>
+        </div>
+        <!-- DEPLOYED VIEW: INSTALLATION & INFO CARD (Shown only when Test/Player Bench is hidden) -->
+        <div id="deployed-install-card" class="hidden bg-dark-card border border-dark-border p-5 flex flex-col gap-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-dark-border pb-4">
+            <div>
+              <span class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-brand block">
+                STREMIO INSTALLATION
+              </span>
+              <h2 class="text-base font-extrabold text-white">1-Click Install or Copy Addon URL</h2>
+            </div>
+            <div class="flex items-center gap-2 font-mono text-[10px]">
+              <span class="px-2 py-1 bg-[#0d1a12] border border-[#163d25] text-success font-bold">AnimeSalt: ONLINE</span>
+              <span class="px-2 py-1 bg-[#0d1a12] border border-[#163d25] text-success font-bold">AnimeWorld: ONLINE</span>
+              <span class="px-2 py-1 bg-[#1c1510] border border-brand text-brand font-bold">DUAL ENGINE</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-stretch gap-2.5">
+            <input type="text" id="deployed-manifest-url" class="flex-1 bg-dark-subtle border border-dark-border px-3 py-2.5 font-mono text-xs text-gray-300 outline-none select-all" readonly>
+            <button onclick="copyManifest()" class="px-4 py-2.5 bg-dark-subtle hover:bg-dark-border border border-dark-border text-xs font-bold uppercase text-white transition flex items-center justify-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">content_copy</span>
+              <span>Copy URL</span>
+            </button>
+            <a id="deployed-install-btn" href="#" class="px-5 py-2.5 bg-brand hover:bg-brand-hover text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition">
+              <span class="material-symbols-outlined text-[18px] leading-none select-none">rocket_launch</span>
+              <span>Install in Stremio</span>
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 text-xs font-mono text-gray-400">
+            <div class="p-2.5 bg-dark-subtle border border-dark-border flex items-center gap-2">
+              <span class="text-brand font-bold">✓</span>
+              <span>Hindi Audio Auto-Start</span>
+            </div>
+            <div class="p-2.5 bg-dark-subtle border border-dark-border flex items-center gap-2">
+              <span class="text-brand font-bold">✓</span>
+              <span>Multi-Audio Stream Tracks</span>
+            </div>
+            <div class="p-2.5 bg-dark-subtle border border-dark-border flex items-center gap-2">
+              <span class="text-brand font-bold">✓</span>
+              <span>Parallel Multi-CDN Scanning</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: VIDEO PLAYER BENCH WITH TOP DROPDOWNS (Span 6) -->
+      <div id="player-bench-card" class="lg:col-span-6 bg-dark-card border border-dark-border p-4 flex flex-col justify-between h-full">
+
+        <div>
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <span class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-brand block">
+                PLAYER BENCH
+              </span>
+              <h2 class="text-sm font-extrabold text-white">Live Stream Playback & Inspector</h2>
+            </div>
+            <span id="active-track-label" class="font-mono text-[10px] font-bold text-success bg-[#0d1a12] px-2 py-0.5 border border-[#163d25]">
+              HLS.JS READY
+            </span>
+          </div>
+
+          <!-- TOP CONTROLS BAR: RESOLUTION (LEFT) & AUDIO (RIGHT) DROPDOWNS (SPACE-BETWEEN) -->
+          <div class="flex items-center justify-between gap-3 p-2.5 bg-dark-subtle border border-dark-border mb-3">
+            
+            <!-- Left: Resolution Dropdown -->
+            <div class="flex items-center gap-2 flex-1">
+              <span id="res-icon-display" class="material-symbols-outlined text-[18px] text-brand leading-none">full_hd</span>
+              <div class="flex flex-col flex-1">
+                <span class="text-[9px] font-mono font-extrabold uppercase text-gray-400">Resolution</span>
+                <select id="player-res-select" class="bg-[#16181f] text-xs font-mono font-bold text-white outline-none cursor-pointer w-full p-1 border border-dark-border" onchange="handlePlayerResolutionChange(this.value)">
+                  <option value="0">1080P FHD</option>
+                  <option value="1">720P HD</option>
+                  <option value="2">480P SD</option>
+                  <option value="3">360P Mobile</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Vertical Separator -->
+            <div class="h-7 w-[1px] bg-dark-border flex-shrink-0"></div>
+
+            <!-- Right: Audio Language Dropdown -->
+            <div class="flex items-center gap-2 flex-1 justify-end">
+              <span class="material-symbols-outlined text-[18px] text-brand leading-none">volume_up</span>
+              <div class="flex flex-col flex-1 text-right">
+                <span class="text-[9px] font-mono font-extrabold uppercase text-gray-400">Audio Track</span>
+                <select id="player-audio-select" class="bg-[#16181f] text-xs font-mono font-bold text-white outline-none cursor-pointer w-full text-right p-1 border border-dark-border" onchange="handlePlayerAudioChange(this.value)">
+                  <option value="0">Loading...</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 16:9 Video Canvas -->
+          <div class="w-full aspect-video bg-black border border-dark-border relative overflow-hidden flex items-center justify-center">
+            <video id="video-elem" controls playsinline class="w-full h-full object-contain"></video>
+          </div>
+        </div>
+
+        <!-- Player Bench Info Footer -->
+        <div class="flex items-center justify-between text-xs font-mono text-gray-400 pt-3 mt-3 border-t border-dark-border">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 bg-success"></span>
+            <span>MPEG-TS Unmasked Stream</span>
+          </span>
+          <span id="player-status-tag" class="text-brand font-bold">1080P • HLS Master</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    let hlsInstance = null;
+    let currentStreams = [];
+    let activeStreamIndex = 0;
+
+    function getBaseUrl() {
+      return window.location.origin;
+    }
+
+    function generateConfigObject() {
+      const resolutions = [];
+      ['1080p', '720p', '480p', '360p'].forEach(r => {
+        const el = document.getElementById('res-' + r);
+        if (el && el.checked) resolutions.push(r);
+      });
+
+      const defaultLang = document.getElementById('default-lang').value;
+      const maxStreams = parseInt(document.getElementById('max-streams').value, 10);
+
+      const config = {};
+      if (defaultLang && defaultLang !== 'hin') config.defaultLang = defaultLang;
+      if (resolutions.length > 0 && resolutions.length < 4) config.resolutions = resolutions;
+      if (maxStreams > 0) config.maxStreams = maxStreams;
+
+      return config;
+    }
+
+    function encodeConfig(config) {
+      if (Object.keys(config).length === 0) return '';
+      const json = JSON.stringify(config);
+      return btoa(json).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function checkDeploymentMode() {
+      const urlParams = new URLSearchParams(window.location.search);
+      // Confidential key-based activation: strictly hidden by default everywhere
+      const activationKey = urlParams.get('key') || urlParams.get('secret') || urlParams.get('dev');
+      const hasValidKey = Boolean(
+        activationKey &&
+        (activationKey === 'animesetu' || activationKey === 'dev' || activationKey === 'admin' || activationKey === 'true')
+      );
+
+      applyBenchVisibility(hasValidKey);
+    }
+
+    function applyBenchVisibility(enableTestBench) {
+      const testBenchCard = document.getElementById('test-bench-card');
+      const playerBenchCard = document.getElementById('player-bench-card');
+      const leftCol = document.getElementById('left-config-column');
+      const configGrid = document.getElementById('config-cards-container');
+      const deployedInstallCard = document.getElementById('deployed-install-card');
+
+      if (!enableTestBench) {
+        if (testBenchCard) testBenchCard.classList.add('hidden');
+        if (playerBenchCard) playerBenchCard.classList.add('hidden');
+        if (leftCol) {
+          leftCol.className = 'lg:col-span-12 max-w-4xl mx-auto w-full flex flex-col gap-3.5';
+        }
+        if (configGrid) {
+          configGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-3.5 w-full';
+        }
+        if (deployedInstallCard) {
+          deployedInstallCard.classList.remove('hidden');
+        }
+      } else {
+        if (testBenchCard) testBenchCard.classList.remove('hidden');
+        if (playerBenchCard) playerBenchCard.classList.remove('hidden');
+        if (leftCol) {
+          leftCol.className = 'lg:col-span-6 flex flex-col gap-3.5 justify-between';
+        }
+        if (configGrid) {
+          configGrid.className = 'flex flex-col gap-3.5 w-full';
+        }
+        if (deployedInstallCard) {
+          deployedInstallCard.classList.add('hidden');
+        }
+      }
+    }
+
+    function updateConfig() {
+      const config = generateConfigObject();
+      const encoded = encodeConfig(config);
+      const base = getBaseUrl();
+      
+      let manifestUrl = encoded ? `${base}/${encoded}/manifest.json` : `${base}/manifest.json`;
+      let stremioUrl = manifestUrl.replace(/^http/, 'stremio');
+
+      document.getElementById('manifest-url').value = manifestUrl;
+      document.getElementById('install-btn').href = stremioUrl;
+      if (document.getElementById('deployed-manifest-url')) {
+        document.getElementById('deployed-manifest-url').value = manifestUrl;
+      }
+      if (document.getElementById('deployed-install-btn')) {
+        document.getElementById('deployed-install-btn').href = stremioUrl;
+      }
+    }
+
+    function copyManifest() {
+      const input = document.getElementById('manifest-url');
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      alert('Manifest URL copied to clipboard!');
+    }
+
+    function setPreset(query, season, ep, type) {
+      document.getElementById('test-query').value = query;
+      document.getElementById('test-season').value = season;
+      document.getElementById('test-episode').value = ep;
+      testResolve(type);
+    }
+
+    function getResolutionIcon(resText) {
+      const lower = (resText || '').toLowerCase();
+      if (lower.includes('1080')) return 'full_hd';
+      if (lower.includes('720')) return 'hd';
+      return 'high_quality';
+    }
+
+    function getCleanResolutionLabel(resText) {
+      const match = (resText || '').match(/(\d+p|4k|2k)/i);
+      return match ? match[1].toUpperCase() : resText;
+    }
+
+    function getProviderLabel(stream) {
+      if (!stream || !stream.title) return '';
+      const match = stream.title.match(/\[(AnimeSalt|AnimeWorld|[^\]]+)\]/i);
+      return match ? match[1] : '';
+    }
+
+    function populatePlayerResolutionDropdown(streams, activeIdx) {
+      const select = document.getElementById('player-res-select');
+      const iconDisplay = document.getElementById('res-icon-display');
+      select.innerHTML = '';
+
+      if (!streams || streams.length === 0) {
+        select.innerHTML = '<option value="0">No Resolutions</option>';
+        return;
+      }
+
+      // Check if there are multiple providers
+      const providers = new Set(streams.map(s => getProviderLabel(s)).filter(Boolean));
+      const hasMultipleProviders = providers.size > 1;
+
+      streams.forEach((s, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        const resLabel = getCleanResolutionLabel(s.name);
+        const provider = getProviderLabel(s);
+        
+        let label = resLabel;
+        if (hasMultipleProviders && provider) {
+          label += ` • ${provider}`;
+        }
+        if (idx === 0) {
+          label += ' (Recommended)';
+        }
+        
+        opt.textContent = label;
+        if (idx === activeIdx) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      if (streams[activeIdx]) {
+        const provider = getProviderLabel(streams[activeIdx]);
+        const resLabel = getCleanResolutionLabel(streams[activeIdx].name);
+        iconDisplay.textContent = getResolutionIcon(streams[activeIdx].name);
+        document.getElementById('player-status-tag').textContent = `${resLabel}${provider ? ` • ${provider}` : ''} • HLS Live`;
+      }
+    }
+
+    function handlePlayerResolutionChange(selectedIdx) {
+      const idx = parseInt(selectedIdx, 10);
+      if (currentStreams[idx]) {
+        activeStreamIndex = idx;
+        const s = currentStreams[idx];
+        const resLabel = getCleanResolutionLabel(s.name);
+        const provider = getProviderLabel(s);
+        const iconDisplay = document.getElementById('res-icon-display');
+        iconDisplay.textContent = getResolutionIcon(s.name);
+        document.getElementById('player-status-tag').textContent = `${resLabel}${provider ? ` • ${provider}` : ''} • HLS Live`;
+        playStream(s.url);
+      }
+    }
+
+    function handlePlayerAudioChange(trackIndex) {
+      const idx = parseInt(trackIndex, 10);
+      if (hlsInstance && hlsInstance.audioTracks && hlsInstance.audioTracks[idx]) {
+        hlsInstance.audioTrack = idx;
+        const track = hlsInstance.audioTracks[idx];
+        document.getElementById('active-track-label').textContent = `AUDIO: ${(track.name || track.lang || '').toUpperCase()}`;
+      }
+    }
+
+    async function testResolve(forceType) {
+      const query = document.getElementById('test-query').value.trim();
+      const season = document.getElementById('test-season').value.trim() || '1';
+      const episode = document.getElementById('test-episode').value.trim() || '1';
+      const isMovie = forceType === 'movie' || (!season && !episode);
+      const selectedSource = document.getElementById('test-source') ? document.getElementById('test-source').value : 'all';
+
+      const config = generateConfigObject();
+      const encoded = encodeConfig(config);
+      const base = getBaseUrl();
+
+      let streamEndpoint = '';
+      if (isMovie) {
+        streamEndpoint = encoded
+          ? `${base}/${encoded}/stream/movie/${encodeURIComponent(query)}.json`
+          : `${base}/stream/movie/${encodeURIComponent(query)}.json`;
+      } else {
+        const fullId = query.includes(':') ? query : `${query}:${season}:${episode}`;
+        streamEndpoint = encoded
+          ? `${base}/${encoded}/stream/series/${encodeURIComponent(fullId)}.json`
+          : `${base}/stream/series/${encodeURIComponent(fullId)}.json`;
+      }
+
+      if (selectedSource && selectedSource !== 'all') {
+        streamEndpoint += (streamEndpoint.includes('?') ? '&' : '?') + `source=${encodeURIComponent(selectedSource)}`;
+      }
+
+      document.getElementById('meta-status-badge').textContent = 'RESOLVING...';
+      document.getElementById('meta-status-badge').className = 'font-mono text-[10px] text-brand bg-[#1c1510] px-2 py-0.5 border border-brand';
+
+      try {
+        const res = await fetch(streamEndpoint);
+        const data = await res.json();
+
+        if (!data.streams || data.streams.length === 0) {
+          document.getElementById('meta-status-badge').textContent = 'NO STREAMS';
+          document.getElementById('meta-status-badge').className = 'font-mono text-[10px] text-red-400 bg-red-950/30 px-2 py-0.5 border border-red-800';
+          return;
+        }
+
+        currentStreams = data.streams;
+        activeStreamIndex = 0;
+
+        document.getElementById('summary-title').textContent = query.toUpperCase() + (isMovie ? '' : ` S${season}E${episode}`);
+        const sourceLabel = selectedSource === 'animesalt'
+          ? 'AnimeSalt HLS Stream Proxy'
+          : selectedSource === 'animeworld'
+          ? 'WatchAnimeWorld (Zephyrix CDN)'
+          : 'AnimeSalt + AnimeWorld (Dual Engine)';
+        if (document.getElementById('summary-source')) {
+          document.getElementById('summary-source').textContent = sourceLabel;
+        }
+        document.getElementById('meta-status-badge').textContent = `${currentStreams.length} RESOLUTIONS READY`;
+        document.getElementById('meta-status-badge').className = 'font-mono text-[10px] text-success bg-[#0d1a12] px-2 py-0.5 border border-[#163d25]';
+
+        populatePlayerResolutionDropdown(currentStreams, 0);
+
+        // Auto play top stream
+        playStream(currentStreams[0].url);
+      } catch (err) {
+        document.getElementById('meta-status-badge').textContent = 'ERROR';
+        document.getElementById('meta-status-badge').className = 'font-mono text-[10px] text-red-400 bg-red-950/30 px-2 py-0.5 border border-red-800';
+      }
+    }
+
+    function populateAudioDropdown(tracks, activeId) {
+      const select = document.getElementById('player-audio-select');
+      const trackLabel = document.getElementById('active-track-label');
+      select.innerHTML = '';
+
+      if (!tracks || tracks.length === 0) {
+        select.innerHTML = '<option value="0">Default Audio</option>';
+        return;
+      }
+
+      tracks.forEach((t, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = (t.name || t.lang || ('Track ' + (idx + 1))) + (idx === activeId ? ' (Active)' : '');
+        if (idx === activeId) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      if (tracks[activeId]) {
+        trackLabel.textContent = `AUDIO: ${(tracks[activeId].name || tracks[activeId].lang || '').toUpperCase()}`;
+      }
+    }
+
+    function playStream(url) {
+      const video = document.getElementById('video-elem');
+      const audioSelect = document.getElementById('player-audio-select');
+      audioSelect.innerHTML = '<option value="0">Loading audio tracks...</option>';
+
+      if (hlsInstance) {
+        hlsInstance.destroy();
+        hlsInstance = null;
+      }
+
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true,
+          capLevelToPlayerSize: true,
+        });
+        hlsInstance = hls;
+        hls.loadSource(url);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(() => {});
+          if (hls.audioTracks && hls.audioTracks.length > 0) {
+            populateAudioDropdown(hls.audioTracks, hls.audioTrack);
+          }
+        });
+
+        hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, (_, data) => {
+          if (hls.audioTracks) {
+            populateAudioDropdown(hls.audioTracks, data.id);
+          }
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.play().catch(() => {});
+      }
+    }
+
+    window.onload = () => {
+      updateConfig();
+    };
+  </script>
+</body>
+</html>

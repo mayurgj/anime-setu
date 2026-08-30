@@ -1,0 +1,40 @@
+{
+  "name": "stremio-anime-setu",
+  "version": "1.0.0",
+  "description": "Anime Setu - Multi-CDN Anime Stremio Add-on with Hindi & Indian Regional Audio",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "stremio",
+    "addon",
+    "animesalt",
+    "scraper",
+    "anime"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "stremio-addon-sdk": "^1.6.10",
+    "typescript": "^5.7.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.6"
+  }
+}
