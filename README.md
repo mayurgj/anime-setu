@@ -36,11 +36,6 @@
   - **Audio Routing**: Choose preferred default audio language
   - **Stream Limits**: Set maximum returned stream candidates
   - **1-Click Stremio Install** & Manifest URL generator
-- 🔒 **Confidential Developer Test Bench**:
-  - Built-in live resolver with instant presets (Naruto, Shinchan, etc.)
-  - Source selector (`All Sources`, `AnimeSalt`, `AnimeWorld`)
-  - Integrated HLS.js player with dynamic resolution and audio track selector
-  - Hidden by default in production; unlockable via secret URL parameter: `?key=animesetu`
 
 ---
 

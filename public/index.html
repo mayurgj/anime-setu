@@ -108,11 +108,11 @@
     <!-- 2-COLUMN BALANCED DASHBOARD -->
     <div id="main-dashboard-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 w-full items-stretch">
 
-      <!-- LEFT COLUMN: CONFIGURATION & SEARCH BENCH (Span 6) -->
-      <div id="left-config-column" class="lg:col-span-6 flex flex-col gap-3.5 justify-between">
+      <!-- LEFT COLUMN: CONFIGURATION CARDS (Centered by Default) -->
+      <div id="left-config-column" class="lg:col-span-12 max-w-4xl mx-auto w-full flex flex-col gap-3.5">
 
         <!-- CONTAINER FOR CONFIGURATION CARDS -->
-        <div id="config-cards-container" class="flex flex-col gap-3.5 w-full">
+        <div id="config-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 w-full">
 
         <!-- 1. RESOLUTION FILTER CARD (4 Columns: 1080P, 720P, 480P, 360P) -->
         <div class="bg-dark-card border border-dark-border p-4 flex flex-col gap-3">
@@ -210,8 +210,8 @@
 
         </div>
 
-        <!-- 3. TEST BENCH & SEARCH RESOLVER CARD -->
-        <div id="test-bench-card" class="bg-dark-card border border-dark-border p-4 flex flex-col gap-3 flex-1 justify-between">
+        <!-- 3. TEST BENCH & SEARCH RESOLVER CARD (Hidden by Default) -->
+        <div id="test-bench-card" class="hidden bg-dark-card border border-dark-border p-4 flex flex-col gap-3 flex-1 justify-between">
           <div>
             <div class="flex items-center justify-between">
               <div>
@@ -276,8 +276,8 @@
             </div>
           </div>
         </div>
-        <!-- DEPLOYED VIEW: INSTALLATION & INFO CARD (Shown only when Test/Player Bench is hidden) -->
-        <div id="deployed-install-card" class="hidden bg-dark-card border border-dark-border p-5 flex flex-col gap-4">
+        <!-- DEPLOYED VIEW: INSTALLATION & INFO CARD (Shown by Default) -->
+        <div id="deployed-install-card" class="bg-dark-card border border-dark-border p-5 flex flex-col gap-4">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-dark-border pb-4">
             <div>
               <span class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-brand block">
@@ -321,8 +321,8 @@
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: VIDEO PLAYER BENCH WITH TOP DROPDOWNS (Span 6) -->
-      <div id="player-bench-card" class="lg:col-span-6 bg-dark-card border border-dark-border p-4 flex flex-col justify-between h-full">
+      <!-- RIGHT COLUMN: VIDEO PLAYER BENCH WITH TOP DROPDOWNS (Hidden by Default) -->
+      <div id="player-bench-card" class="hidden lg:col-span-6 bg-dark-card border border-dark-border p-4 flex flex-col justify-between h-full">
 
         <div>
           <!-- Header -->
@@ -435,6 +435,9 @@
       );
 
       applyBenchVisibility(hasValidKey);
+      if (hasValidKey) {
+        testResolve();
+      }
     }
 
     function applyBenchVisibility(enableTestBench) {
@@ -711,6 +714,7 @@
     }
 
     window.onload = () => {
+      checkDeploymentMode();
       updateConfig();
     };
   </script>
