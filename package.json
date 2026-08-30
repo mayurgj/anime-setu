@@ -18,8 +18,10 @@
     "anime"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x",
+    "pnpm": "9.15.4"
   },
+  "packageManager": "pnpm@9.15.4",
   "dependencies": {
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
